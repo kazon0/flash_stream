@@ -53,7 +53,7 @@ lib/
 Enter the project root:
 
 ```bash
-cd "/Users/zhengjinba/Documents/大三学习内容/flutter study/flash_stream/flash_stream"
+cd "/Users/zhengjinba/Documents/大三学习内容/flutter study/flash_stream"
 ```
 
 Install dependencies:

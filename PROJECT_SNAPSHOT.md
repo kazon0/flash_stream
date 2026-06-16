@@ -175,6 +175,6 @@ Build the initial demo into a resume-consistent Flutter LAN P2P file transfer pr
 ## Important Notes
 
 - The project root is:
-  `/Users/zhengjinba/Documents/大三学习内容/flutter study/flash_stream/flash_stream`
-- The outer `flash_stream` directory is not a Git repository.
+  `/Users/zhengjinba/Documents/大三学习内容/flutter study/flash_stream`
+- The Flutter project has been flattened to the Git repository root.
 - Avoid overclaiming FFI encryption unless actual FFI integration is added.
