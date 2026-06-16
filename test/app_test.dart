@@ -29,7 +29,13 @@ void main() {
     );
 
     expect(find.text('FlashStream'), findsOneWidget);
+    expect(find.text('发送'), findsOneWidget);
+    expect(find.text('接收'), findsOneWidget);
+    expect(find.text('发送到附近设备'), findsOneWidget);
+
+    await tester.tap(find.text('接收'));
+    await tester.pumpAndSettle();
+
     expect(find.text('接收文件'), findsOneWidget);
-    expect(find.text('发送文件'), findsOneWidget);
   });
 }

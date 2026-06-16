@@ -8,11 +8,13 @@ class FileSummaryTile extends StatelessWidget {
   const FileSummaryTile({
     required this.record,
     required this.onOpen,
+    this.subtitle,
     super.key,
   });
 
   final TransferRecord record;
   final VoidCallback? onOpen;
+  final String? subtitle;
 
   @override
   Widget build(BuildContext context) {
@@ -73,7 +75,8 @@ class FileSummaryTile extends StatelessWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    '${record.direction.label} · ${FileSizeFormatter.format(record.fileSize)}',
+                    subtitle ??
+                        '${record.direction.label} · ${FileSizeFormatter.format(record.fileSize)}',
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                 ],

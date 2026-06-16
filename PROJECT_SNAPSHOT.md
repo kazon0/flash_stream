@@ -117,6 +117,13 @@ Build the initial demo into a resume-consistent Flutter LAN P2P file transfer pr
 - Removed technical checksum wording from user-facing UI:
   - `完整性校验` / `MD5` / `校验` no longer appears in app-facing transfer status text
   - underlying checksum verification logic is still kept for reliability
+- Reworked the transfer UI from three stacked cards into a mode-driven mobile tool layout:
+  - top-level `发送` / `接收` mode cards switch the main panel
+  - sender panel shows device discovery states: idle, searching, no device, device list, and active/completed transfer
+  - receiver panel shows receive states: not started, waiting, receiving, and completed file actions
+  - transfer progress is now embedded in the relevant send/receive panel instead of a bottom status block
+  - active transfers show progress, transferred size, total size, and a user-friendly low-memory note
+  - history page now uses file-style record cards with direct `打开` / `导出` / `分享` actions
 
 ## Verification
 
@@ -164,6 +171,11 @@ Build the initial demo into a resume-consistent Flutter LAN P2P file transfer pr
   - `dart format lib test`: passed
   - `flutter analyze`: passed
   - `flutter test`: passed
+- After mode-driven UI migration:
+  - `dart format lib test`: passed
+  - `flutter analyze`: passed
+  - `flutter test`: passed
+  - `flutter build apk --debug`: passed, output `build/app/outputs/flutter-apk/app-debug.apk`
 
 ## Next Steps
 

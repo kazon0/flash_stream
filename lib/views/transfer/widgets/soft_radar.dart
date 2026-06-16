@@ -3,9 +3,14 @@ import 'package:flutter/material.dart';
 import '../../../app/app_colors.dart';
 
 class SoftRadar extends StatefulWidget {
-  const SoftRadar({required this.active, super.key});
+  const SoftRadar({
+    required this.active,
+    this.icon = Icons.search_rounded,
+    super.key,
+  });
 
   final bool active;
+  final IconData icon;
 
   @override
   State<SoftRadar> createState() => _SoftRadarState();
@@ -60,10 +65,10 @@ class _SoftRadarState extends State<SoftRadar>
                 width: 56,
                 height: 56,
                 decoration: const BoxDecoration(
-                  color: AppColors.roseIcon,
+                  color: AppColors.slate,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.search, color: Colors.white, size: 28),
+                child: Icon(widget.icon, color: AppColors.slateDeep, size: 28),
               ),
             ],
           );
@@ -93,7 +98,7 @@ class _RadarRing extends StatelessWidget {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColors.roseIcon,
+              color: AppColors.slateButton.withValues(alpha: 0.34),
               width: 5 - progress * 3,
             ),
           ),
@@ -144,7 +149,7 @@ class _GummyLoaderState extends State<GummyLoader>
                   scale: _scaleFor(index),
                   child: const CircleAvatar(
                     radius: 4,
-                    backgroundColor: AppColors.sageDeep,
+                    backgroundColor: AppColors.slateDeep,
                   ),
                 ),
               ),

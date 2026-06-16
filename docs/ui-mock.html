@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FlashStream UI Mock</title>
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f7f9fc;
+        --surface: #ffffff;
+        --panel: #edf6fd;
+        --panel-strong: #dceefb;
+        --line: #dce8f2;
+        --text: #263442;
+        --muted: #738397;
+        --blue: #5a9fcf;
+        --blue-deep: #407da8;
+        --green: #4aa782;
+        --orange: #b5843e;
+        --shadow: 0 16px 42px rgba(52, 92, 124, 0.11);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI",
+          sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      .phone {
+        width: min(430px, 100vw);
+        height: min(900px, 100vh);
+        min-height: 760px;
+        background: var(--bg);
+        border-radius: 34px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.8);
+      }
+
+      .screen {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        padding: 22px 18px 18px;
+      }
+
+      .app-home,
+      .history-page {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .history-page {
+        display: none;
+      }
+
+      body.show-history .app-home {
+        display: none;
+      }
+
+      body.show-history .history-page {
+        display: flex;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 4px 16px 8px;
+        flex: 0 0 auto;
+      }
+
+      .brand {
+        transform: translate(4px, 3px);
+      }
+
+      .brand h1 {
+        margin: 0;
+        font-size: 29px;
+        line-height: 1;
+        letter-spacing: 0;
+        font-weight: 850;
+      }
+
+      .brand p {
+        margin: 7px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 650;
+      }
+
+      .icon-btn {
+        display: inline-grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border: 0;
+        border-radius: 15px;
+        background: var(--surface);
+        color: var(--blue-deep);
+        box-shadow: 0 8px 22px rgba(43, 75, 103, 0.08);
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .quick-card {
+        appearance: none;
+        width: 100%;
+        text-align: left;
+        min-height: 116px;
+        padding: 14px;
+        border: 1px solid var(--line);
+        border-radius: 22px;
+        background: var(--surface);
+        box-shadow: 0 10px 28px rgba(42, 74, 103, 0.07);
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+        transition:
+          transform 160ms ease,
+          border-color 160ms ease,
+          background 160ms ease;
+      }
+
+      .quick-card.active {
+        color: var(--text);
+        background: linear-gradient(145deg, #f7fbff, #e2f1fb);
+        border-color: #b8d9ee;
+      }
+
+      .quick-card:active {
+        transform: scale(0.985);
+      }
+
+      .quick-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .quick-icon {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 15px;
+        background: var(--panel);
+        color: var(--blue-deep);
+      }
+
+      .active .quick-icon {
+        background: #ffffff;
+        color: var(--blue-deep);
+      }
+
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        min-height: 25px;
+        padding: 0 9px;
+        border-radius: 999px;
+        background: var(--panel);
+        color: var(--blue-deep);
+        font-size: 11px;
+        font-weight: 850;
+      }
+
+      .active .badge {
+        color: var(--blue-deep);
+        background: #ffffff;
+      }
+
+      .quick-card h2 {
+        margin: 14px 0 5px;
+        font-size: 18px;
+        font-weight: 850;
+        line-height: 1.1;
+      }
+
+      .quick-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.35;
+        font-weight: 650;
+      }
+
+      .active p {
+        color: var(--muted);
+      }
+
+      .main-panel {
+        min-height: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .panel {
+        padding: 15px;
+        border: 1px solid var(--line);
+        border-radius: 23px;
+        background: var(--surface);
+        box-shadow: 0 12px 30px rgba(42, 74, 103, 0.07);
+      }
+
+      .mode-view {
+        display: none;
+      }
+
+      .mode-view.active {
+        display: block;
+      }
+
+      .panel-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 12px;
+      }
+
+      .title-line {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+      }
+
+      .title-line .icon-wrap {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 15px;
+        color: var(--blue-deep);
+        background: var(--panel);
+        flex: 0 0 auto;
+      }
+
+      .title-line h3 {
+        margin: 0;
+        font-size: 17px;
+        line-height: 1.15;
+        font-weight: 850;
+      }
+
+      .title-line span {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .small-btn,
+      .primary-btn,
+      .secondary-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        border: 0;
+        font: inherit;
+        font-weight: 850;
+      }
+
+      .small-btn {
+        min-height: 38px;
+        padding: 0 12px;
+        border-radius: 14px;
+        color: var(--blue-deep);
+        background: var(--panel);
+      }
+
+      .primary-btn {
+        width: 100%;
+        min-height: 48px;
+        border-radius: 17px;
+        color: white;
+        background: #5a9fcf;
+        box-shadow: 0 10px 22px rgba(90, 159, 207, 0.22);
+      }
+
+      .secondary-btn {
+        min-height: 38px;
+        padding: 0 12px;
+        border-radius: 14px;
+        color: var(--blue-deep);
+        background: var(--panel);
+      }
+
+      .device-box {
+        display: grid;
+        gap: 9px;
+      }
+
+      .send-state,
+      .receive-state {
+        display: none;
+      }
+
+      .send-state.active,
+      .receive-state.active {
+        display: block;
+      }
+
+      .device {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-height: 57px;
+        padding: 9px;
+        border-radius: 17px;
+        border: 1px solid var(--line);
+        background: #f8fbfd;
+      }
+
+      .device.selected {
+        border-color: #a9d2eb;
+        background: var(--panel);
+      }
+
+      .device-icon {
+        display: grid;
+        place-items: center;
+        width: 38px;
+        height: 38px;
+        border-radius: 14px;
+        color: var(--blue-deep);
+        background: white;
+        flex: 0 0 auto;
+      }
+
+      .device-text {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .device-text strong,
+      .file-text strong {
+        display: block;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        font-size: 14px;
+        line-height: 1.2;
+      }
+
+      .device-text span,
+      .file-text span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .check {
+        display: grid;
+        place-items: center;
+        width: 25px;
+        height: 25px;
+        border-radius: 50%;
+        color: white;
+        background: var(--blue);
+        flex: 0 0 auto;
+      }
+
+      .send-action {
+        margin-top: 11px;
+      }
+
+      .receive-strip {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        padding: 11px;
+        border-radius: 18px;
+        background: var(--panel);
+      }
+
+      .receive-hero {
+        display: grid;
+        place-items: center;
+        min-height: 208px;
+        padding: 20px;
+        border-radius: 22px;
+        border: 1px dashed #bdd9eb;
+        background:
+          radial-gradient(circle at 50% 38%, rgba(90, 159, 207, 0.13), transparent 35%),
+          #f8fbfd;
+        text-align: center;
+      }
+
+      .radar {
+        position: relative;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: rgba(90, 159, 207, 0.16);
+        flex: 0 0 auto;
+      }
+
+      .radar.large {
+        display: grid;
+        place-items: center;
+        width: 86px;
+        height: 86px;
+        margin: 0 auto 12px;
+        color: var(--blue-deep);
+      }
+
+      .radar.large::before,
+      .radar.large::after {
+        inset: 15px;
+        border-color: rgba(90, 159, 207, 0.38);
+      }
+
+      .radar::before,
+      .radar::after {
+        content: "";
+        position: absolute;
+        inset: 9px;
+        border: 2px solid rgba(90, 159, 207, 0.55);
+        border-radius: 50%;
+        animation: radar 1.8s infinite ease-out;
+      }
+
+      .radar::after {
+        animation-delay: 0.55s;
+      }
+
+      @keyframes radar {
+        from {
+          opacity: 0.9;
+          transform: scale(0.65);
+        }
+        to {
+          opacity: 0;
+          transform: scale(2);
+        }
+      }
+
+      .receive-strip strong {
+        display: block;
+        font-size: 14px;
+      }
+
+      .receive-strip span {
+        display: block;
+        margin-top: 3px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 650;
+      }
+
+      .receive-hero strong {
+        display: block;
+        font-size: 15px;
+      }
+
+      .receive-hero span {
+        display: block;
+        max-width: 250px;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+        font-weight: 650;
+      }
+
+      .transfer-inline {
+        margin-top: 12px;
+        padding: 12px;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        background: #f8fbfd;
+      }
+
+      .metric-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .metric {
+        padding: 9px 10px;
+        border-radius: 14px;
+        background: var(--panel);
+      }
+
+      .metric span {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 750;
+      }
+
+      .metric strong {
+        display: block;
+        margin-top: 3px;
+        font-size: 13px;
+      }
+
+      .transfer-top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .transfer-top strong {
+        font-size: 14px;
+      }
+
+      .percent {
+        color: var(--blue-deep);
+        font-size: 13px;
+        font-weight: 850;
+      }
+
+      .file-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .file-icon {
+        display: grid;
+        place-items: center;
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        color: var(--green);
+        background: #e8f5ef;
+        flex: 0 0 auto;
+      }
+
+      .file-text {
+        min-width: 0;
+        flex: 1;
+      }
+
+      .progress {
+        height: 6px;
+        margin-top: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: #e5edf4;
+      }
+
+      .progress span {
+        display: block;
+        width: 72%;
+        height: 100%;
+        background: linear-gradient(90deg, var(--blue), #8fc7e7);
+        border-radius: inherit;
+      }
+
+      .file-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 9px;
+        margin-top: 11px;
+      }
+
+      .file-actions button {
+        min-height: 38px;
+        border: 0;
+        border-radius: 14px;
+        color: var(--blue-deep);
+        background: var(--panel);
+        font-weight: 850;
+      }
+
+      .empty-note {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 40px;
+        padding: 0 11px;
+        margin-top: 9px;
+        border-radius: 14px;
+        color: var(--orange);
+        background: #fff6e8;
+        font-size: 12px;
+        font-weight: 750;
+      }
+
+      .searching-card,
+      .empty-card {
+        display: grid;
+        place-items: center;
+        min-height: 188px;
+        padding: 18px;
+        border: 1px dashed #bdd9eb;
+        border-radius: 20px;
+        background:
+          radial-gradient(circle at 50% 35%, rgba(90, 159, 207, 0.12), transparent 34%),
+          #f8fbfd;
+        text-align: center;
+      }
+
+      .searching-radar {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: 86px;
+        height: 86px;
+        margin: 0 auto 12px;
+        border-radius: 50%;
+        color: var(--blue-deep);
+        background: rgba(90, 159, 207, 0.1);
+      }
+
+      .searching-radar::before,
+      .searching-radar::after {
+        content: "";
+        position: absolute;
+        inset: 15px;
+        border: 2px solid rgba(90, 159, 207, 0.38);
+        border-radius: 50%;
+        animation: radar 1.9s infinite ease-out;
+      }
+
+      .searching-radar::after {
+        animation-delay: 0.65s;
+      }
+
+      .searching-card strong,
+      .empty-card strong {
+        display: block;
+        font-size: 15px;
+      }
+
+      .searching-card span,
+      .empty-card span {
+        display: block;
+        max-width: 250px;
+        margin-top: 6px;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.45;
+        font-weight: 650;
+      }
+
+      .state-switcher {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+        gap: 7px;
+        margin-top: 11px;
+        padding: 5px;
+        border-radius: 16px;
+        background: #f3f8fc;
+      }
+
+      .state-switcher button {
+        min-height: 31px;
+        border: 0;
+        border-radius: 12px;
+        color: var(--muted);
+        background: transparent;
+        font: inherit;
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .state-switcher button.active {
+        color: var(--blue-deep);
+        background: white;
+        box-shadow: 0 4px 14px rgba(52, 92, 124, 0.08);
+      }
+
+      .received-file {
+        margin-top: 12px;
+        padding: 12px;
+        border-radius: 18px;
+        border: 1px solid var(--line);
+        background: #f8fbfd;
+      }
+
+      .history-list {
+        min-height: 0;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        min-height: 44px;
+        padding: 0 13px;
+        border-radius: 16px;
+        color: var(--muted);
+        background: var(--surface);
+        border: 1px solid var(--line);
+      }
+
+      .history-card {
+        padding: 12px;
+        border-radius: 18px;
+        background: var(--surface);
+        border: 1px solid var(--line);
+        box-shadow: 0 10px 28px rgba(42, 74, 103, 0.06);
+      }
+
+      .history-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin-top: 10px;
+      }
+
+      .history-actions button {
+        min-height: 34px;
+        border: 0;
+        border-radius: 12px;
+        color: var(--blue-deep);
+        background: var(--panel);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 820;
+      }
+
+      .history-date {
+        margin: 4px 0 8px;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      @media (max-width: 440px) {
+        body {
+          display: block;
+        }
+
+        .phone {
+          width: 100%;
+          height: 100vh;
+          min-height: 740px;
+          border: 0;
+          border-radius: 0;
+          box-shadow: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="phone">
+      <div class="screen">
+        <div class="app-home">
+          <header class="topbar">
+            <div class="brand">
+              <h1>FlashStream</h1>
+              <p>轻松分享，随时传递</p>
+            </div>
+            <button class="icon-btn" aria-label="传输记录" data-open-history>
+              <i data-lucide="history"></i>
+            </button>
+          </header>
+
+          <section class="summary" aria-label="核心操作">
+            <button class="quick-card active" type="button" data-mode-button="send">
+              <div class="quick-top">
+                <div class="quick-icon"><i data-lucide="send"></i></div>
+                <span class="badge"><i data-lucide="wifi" size="13"></i>2 台</span>
+              </div>
+              <h2>发送</h2>
+              <p>选择设备后发送文件</p>
+            </button>
+            <button class="quick-card" type="button" data-mode-button="receive">
+              <div class="quick-top">
+                <div class="quick-icon"><i data-lucide="inbox"></i></div>
+                <span class="badge">开启</span>
+              </div>
+              <h2>接收</h2>
+              <p>让别人找到这台手机</p>
+            </button>
+          </section>
+
+          <section class="main-panel">
+          <article class="panel mode-view active" data-mode-view="send">
+            <div class="panel-head">
+              <div class="title-line">
+                <div class="icon-wrap"><i data-lucide="send"></i></div>
+                <div>
+                  <h3>发送到附近设备</h3>
+                  <span>先查找，再选择设备</span>
+                </div>
+              </div>
+              <button class="small-btn">
+                <i data-lucide="search" size="16"></i>
+                查找
+              </button>
+            </div>
+
+            <div class="send-state active" data-send-state="devices">
+              <div class="device-box">
+                <div class="device selected">
+                  <div class="device-icon"><i data-lucide="smartphone"></i></div>
+                  <div class="device-text">
+                    <strong>kazon 的 iPhone</strong>
+                    <span>附近可接收 · 刚刚发现</span>
+                  </div>
+                  <div class="check"><i data-lucide="check" size="16"></i></div>
+                </div>
+                <div class="device">
+                  <div class="device-icon"><i data-lucide="tablet-smartphone"></i></div>
+                  <div class="device-text">
+                    <strong>Xiaomi 14</strong>
+                    <span>附近可接收 · 同一网络</span>
+                  </div>
+                  <i data-lucide="chevron-right" color="#6f7f90"></i>
+                </div>
+              </div>
+
+              <button class="primary-btn send-action">
+                <i data-lucide="file-up"></i>
+                选择文件并发送
+              </button>
+            </div>
+
+            <div class="send-state" data-send-state="searching">
+              <div class="searching-card">
+                <div>
+                  <div class="searching-radar">
+                    <i data-lucide="search" size="30"></i>
+                  </div>
+                  <strong>正在查找附近设备</strong>
+                  <span>让另一台手机保持接收页面打开，并连接同一 Wi-Fi。</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="send-state" data-send-state="empty">
+              <div class="empty-card">
+                <div>
+                  <div class="searching-radar">
+                    <i data-lucide="wifi-off" size="30"></i>
+                  </div>
+                  <strong>未发现接收设备</strong>
+                  <span>请先在另一台手机点击“接收”，然后重新查找。</span>
+                </div>
+              </div>
+              <button class="primary-btn send-action">
+                <i data-lucide="refresh-cw"></i>
+                重新查找
+              </button>
+            </div>
+
+            <div class="send-state" data-send-state="sending">
+              <div class="transfer-inline">
+                <div class="transfer-top">
+                  <strong>正在发送</strong>
+                  <span class="percent">72%</span>
+                </div>
+                <div class="file-row">
+                  <div class="file-icon"><i data-lucide="file-text"></i></div>
+                  <div class="file-text">
+                    <strong>郑晗希客户端开发实习岗简历.pdf</strong>
+                    <span>发送到 kazon 的 iPhone</span>
+                  </div>
+                  <i data-lucide="chevron-right" color="#6f7f90"></i>
+                </div>
+                <div class="progress"><span></span></div>
+                <div class="metric-row">
+                  <div class="metric">
+                    <span>已传输</span>
+                    <strong>95 KB / 132 KB</strong>
+                  </div>
+                  <div class="metric">
+                    <span>内存占用</span>
+                    <strong>低 · 分片传输</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="state-switcher" aria-label="原型状态切换">
+              <button class="active" type="button" data-send-state-button="devices">有设备</button>
+              <button type="button" data-send-state-button="searching">查找中</button>
+              <button type="button" data-send-state-button="empty">未发现</button>
+              <button type="button" data-send-state-button="sending">传输中</button>
+            </div>
+          </article>
+
+          <article class="panel mode-view" data-mode-view="receive">
+            <div class="panel-head">
+              <div class="title-line">
+                <div class="icon-wrap"><i data-lucide="download"></i></div>
+                <div>
+                  <h3>接收文件</h3>
+                  <span>这台手机可被附近设备发现</span>
+                </div>
+              </div>
+              <button class="secondary-btn">停止</button>
+            </div>
+            <div class="receive-state active" data-receive-state="waiting">
+              <div class="receive-hero">
+                <div>
+                  <div class="radar large">
+                    <i data-lucide="radio" size="30"></i>
+                  </div>
+                  <strong>正在等待接收</strong>
+                  <span>其他设备可以在附近设备列表中找到这台手机。</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="receive-state" data-receive-state="receiving">
+              <div class="transfer-inline">
+                <div class="transfer-top">
+                  <strong>正在接收</strong>
+                  <span class="percent">48%</span>
+                </div>
+                <div class="file-row">
+                  <div class="file-icon"><i data-lucide="file-image"></i></div>
+                  <div class="file-text">
+                    <strong>VID_20260613_144135.mp4</strong>
+                    <span>来自 Xiaomi 14</span>
+                  </div>
+                  <i data-lucide="chevron-right" color="#6f7f90"></i>
+                </div>
+                <div class="progress"><span style="width: 48%"></span></div>
+                <div class="metric-row">
+                  <div class="metric">
+                    <span>已接收</span>
+                    <strong>382 MB / 798 MB</strong>
+                  </div>
+                  <div class="metric">
+                    <span>内存占用</span>
+                    <strong>低 · 写入本机</strong>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="receive-state" data-receive-state="completed">
+              <div class="received-file">
+                <div class="file-row">
+                  <div class="file-icon"><i data-lucide="file-text"></i></div>
+                  <div class="file-text">
+                    <strong>郑晗希客户端开发实习岗简历.pdf</strong>
+                    <span>接收完成 · 点击打开</span>
+                  </div>
+                  <i data-lucide="chevron-right" color="#6f7f90"></i>
+                </div>
+                <div class="file-actions">
+                  <button>导出</button>
+                  <button>分享</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="state-switcher" aria-label="接收状态切换">
+              <button class="active" type="button" data-receive-state-button="waiting">等待</button>
+              <button type="button" data-receive-state-button="receiving">接收中</button>
+              <button type="button" data-receive-state-button="completed">已完成</button>
+            </div>
+          </article>
+          </section>
+        </div>
+
+        <div class="history-page">
+          <header class="topbar">
+            <button class="icon-btn" aria-label="返回首页" data-close-history>
+              <i data-lucide="chevron-left"></i>
+            </button>
+            <div class="brand" style="flex: 1; padding-left: 10px">
+              <h1 style="font-size: 25px">传输记录</h1>
+              <p>最近文件和操作</p>
+            </div>
+          </header>
+
+          <section class="history-list">
+            <div class="search-box">
+              <i data-lucide="search" size="18"></i>
+              <span>搜索文件名或状态</span>
+            </div>
+
+            <div class="history-date">今天</div>
+
+            <article class="history-card">
+              <div class="file-row">
+                <div class="file-icon"><i data-lucide="file-text"></i></div>
+                <div class="file-text">
+                  <strong>郑晗希客户端开发实习岗简历.pdf</strong>
+                  <span>接收完成 · 428 KB · 来自 kazon 的 iPhone</span>
+                </div>
+                <i data-lucide="chevron-right" color="#6f7f90"></i>
+              </div>
+              <div class="history-actions">
+                <button>打开</button>
+                <button>导出</button>
+                <button>分享</button>
+              </div>
+            </article>
+
+            <article class="history-card">
+              <div class="file-row">
+                <div class="file-icon"><i data-lucide="file-video"></i></div>
+                <div class="file-text">
+                  <strong>VID_20260613_144135.mp4</strong>
+                  <span>发送完成 · 798 MB · 发送到 Xiaomi 14</span>
+                </div>
+                <i data-lucide="chevron-right" color="#6f7f90"></i>
+              </div>
+              <div class="history-actions">
+                <button>打开</button>
+                <button>导出</button>
+                <button>分享</button>
+              </div>
+            </article>
+
+            <div class="history-date">昨天</div>
+
+            <article class="history-card">
+              <div class="file-row">
+                <div class="file-icon"><i data-lucide="archive"></i></div>
+                <div class="file-text">
+                  <strong>课程资料.zip</strong>
+                  <span>接收完成 · 36 MB · 来自 Xiaomi 14</span>
+                </div>
+                <i data-lucide="chevron-right" color="#6f7f90"></i>
+              </div>
+              <div class="history-actions">
+                <button>打开</button>
+                <button>导出</button>
+                <button>分享</button>
+              </div>
+            </article>
+          </section>
+        </div>
+      </div>
+    </main>
+
+    <script>
+      lucide.createIcons({ strokeWidth: 2.25 });
+
+      const modeButtons = document.querySelectorAll("[data-mode-button]");
+      const modeViews = document.querySelectorAll("[data-mode-view]");
+      const sendStateButtons = document.querySelectorAll("[data-send-state-button]");
+      const sendStates = document.querySelectorAll("[data-send-state]");
+      const receiveStateButtons = document.querySelectorAll("[data-receive-state-button]");
+      const receiveStates = document.querySelectorAll("[data-receive-state]");
+      const searchButton = document.querySelector(".small-btn");
+      const openHistoryButton = document.querySelector("[data-open-history]");
+      const closeHistoryButton = document.querySelector("[data-close-history]");
+
+      modeButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const mode = button.dataset.modeButton;
+          modeButtons.forEach((item) => {
+            item.classList.toggle("active", item === button);
+          });
+          modeViews.forEach((view) => {
+            view.classList.toggle("active", view.dataset.modeView === mode);
+          });
+        });
+      });
+
+      function setSendState(state) {
+        sendStateButtons.forEach((button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.sendStateButton === state,
+          );
+        });
+        sendStates.forEach((view) => {
+          view.classList.toggle("active", view.dataset.sendState === state);
+        });
+      }
+
+      sendStateButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setSendState(button.dataset.sendStateButton);
+        });
+      });
+
+      searchButton.addEventListener("click", () => {
+        setSendState("searching");
+      });
+
+      function setReceiveState(state) {
+        receiveStateButtons.forEach((button) => {
+          button.classList.toggle(
+            "active",
+            button.dataset.receiveStateButton === state,
+          );
+        });
+        receiveStates.forEach((view) => {
+          view.classList.toggle("active", view.dataset.receiveState === state);
+        });
+      }
+
+      receiveStateButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          setReceiveState(button.dataset.receiveStateButton);
+        });
+      });
+
+      openHistoryButton.addEventListener("click", () => {
+        document.body.classList.add("show-history");
+      });
+
+      closeHistoryButton.addEventListener("click", () => {
+        document.body.classList.remove("show-history");
+      });
+    </script>
+  </body>
+</html>

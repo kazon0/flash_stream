@@ -52,6 +52,7 @@ class TransferProvider extends ChangeNotifier {
   List<DiscoveredDevice> _discoveredDevices = const [];
   DiscoveredDevice? _selectedDevice;
   bool _isScanning = false;
+  bool _hasScannedDevices = false;
   bool _disposed = false;
 
   TransferStatus get status => _status;
@@ -66,6 +67,7 @@ class TransferProvider extends ChangeNotifier {
       List.unmodifiable(_discoveredDevices);
   DiscoveredDevice? get selectedDevice => _selectedDevice;
   bool get isScanning => _isScanning;
+  bool get hasScannedDevices => _hasScannedDevices;
 
   Future<void> loadLocalIps() async {
     _localIps = await _networkInfoService.localIPv4Addresses();
@@ -156,6 +158,7 @@ class TransferProvider extends ChangeNotifier {
 
   Future<void> scanDevices() async {
     _isScanning = true;
+    _hasScannedDevices = true;
     _message = '正在扫描局域网设备';
     _safeNotifyListeners();
 
