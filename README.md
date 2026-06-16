@@ -1,116 +1,107 @@
 # FlashStream
 
-FlashStream is a Flutter LAN peer-to-peer file transfer app. It focuses on large-file transfer ergonomics: RawSocket networking, isolate-backed chunked file IO, progress events, resumable partial files, MD5 verification, Provider-driven UI state, and Hive-backed local transfer history.
+FlashStream 是一个基于 Flutter 的局域网 P2P 文件传输应用，支持 Android 与 iOS 在同一局域网内发现附近设备、选择文件、分块传输、校验落盘，并保留本地历史记录。
 
-## Features
+## 功能
 
-- LAN point-to-point file transfer over `RawServerSocket` / `RawSocket`.
-- Custom binary-framed JSON header with file metadata.
-- Isolate-backed chunked file reading and writing instead of loading the whole payload into memory.
-- Resume support through `.part` temporary files and offset negotiation.
-- MD5 checksum calculation in a background isolate.
-- Stream-style transfer events for sending, receiving, verifying, completed, and failed states.
-- Provider-based state management.
-- Hive-backed transfer history and keyword search.
-- Receiver-side local IPv4 display and UDP LAN device discovery.
-- Open, export, or share received files from the completion card and history page.
-- Clean layered structure for protocol, network, services, storage, providers, and views.
+- 附近设备发现
+  - Bonjour/mDNS 发现
+  - UDP 广播发现
+  - 发送端选择附近设备
+- 单文件传输
+  - 发送端选择文件
+  - 接收端开启接收
+  - 建立 `RawSocket` 直连后传输
+- 分块读写
+  - 64KB chunk 流式处理
+- 可靠性
+  - `.part` 临时文件续传
+  - MD5 校验
+  - ACK 回执确认接收端保存完成
+- 本地记录与文件操作
+  - Hive 存储传输历史
+  - 支持搜索历史记录
+  - 已接收文件支持 `打开`、`导出`、`分享`
 
-## Architecture
+## 技术栈
+
+- Flutter
+- Dart
+- Provider
+- Hive
+- `RawServerSocket` / `RawSocket`
+- Isolate
+- `crypto`
+
+## 项目结构
 
 ```text
 lib/
-  app/          App shell and theme
-  core/         Constants, errors, utilities
-  models/       Transfer records, status, direction, events
-  protocol/     Header and binary frame encoding/decoding
-  network/      RawSocket transfer service and stream reader
-  services/     File chunks and checksum work
-  storage/      Hive transfer record store
-  providers/    Transfer and history state controllers
-  views/        Transfer and history pages
+  app/          应用入口、主题、配色
+  core/         常量、异常、通用工具
+  models/       传输记录、状态、事件模型
+  protocol/     二进制协议与 header 编解码
+  network/      RawSocket 网络层
+  services/     文件分块、校验、设备发现
+  storage/      Hive 历史记录存储
+  providers/    业务状态控制
+  views/        页面与组件
 ```
 
-## Transfer Flow
+## 传输流程
 
-1. Receiver starts listening on port `9527`.
-2. Sender selects a file and inputs the receiver IPv4 address.
-3. Sender calculates the source file MD5 in an isolate.
-4. Sender writes a framed metadata header to the socket.
-5. Receiver checks whether a partial file already exists and returns the resume offset.
-6. Sender continues from that offset and streams file chunks read by an IO isolate.
-7. Receiver appends chunks to a `.part` file through an IO isolate and reports progress.
-8. Receiver verifies the final MD5 and renames the `.part` file to the original file name.
-9. Receiver returns an ACK to the sender after the file is saved and verified.
-10. Completed or failed transfer records are persisted to Hive.
+1. 接收端开启接收。
+2. 发送端扫描附近设备并选择目标设备。
+3. 发送端选择文件，在 isolate 中计算源文件 MD5。
+4. 双方通过自定义 header 交换文件名、大小、MD5、taskId。
+5. 接收端检查是否存在同任务的 `.part` 文件，并返回续传 offset。
+6. 发送端从 offset 开始按块读取文件并写入 socket。
+7. 接收端按块写入 `.part` 文件。
+8. 接收完成后重新计算 MD5，校验成功后重命名为正式文件。
+9. 接收端返回 ACK，发送端标记任务完成。
+10. 成功或失败记录写入 Hive。
 
-## Resume-Safe Project Description
-
-> Built a Flutter LAN P2P file transfer app with a layered architecture. The project uses `RawServerSocket` / `RawSocket` to implement the network channel, and supports a custom transfer header protocol, isolate-backed chunked file IO, resumable partial-file transfer, isolate-based MD5 verification, Provider state management, Stream-style progress events, and Hive-backed transfer history search.
-
-## Run
-
-Enter the project root:
+## 运行
 
 ```bash
-cd "/Users/zhengjinba/Documents/大三学习内容/flutter study/flash_stream"
-```
-
-Install dependencies:
-
-```bash
+cd flash_stream
 flutter pub get
-```
-
-List connected devices:
-
-```bash
 flutter devices
-```
-
-Run on a specific Android or iOS device:
-
-```bash
 flutter run -d <device-id>
 ```
 
-Run on macOS for quick desktop smoke testing when no phone is connected:
+桌面调试可直接运行：
 
 ```bash
 flutter run
 ```
 
-## Phone-to-Phone Test
+## 真机测试
 
-1. Put both phones on the same Wi-Fi network, or connect one phone to the other's hotspot.
-2. Connect the first phone by USB and run:
-   ```bash
-   flutter devices
-   flutter run -d <receiver-device-id>
-   ```
-3. Connect the second phone by USB and run the app on it as well:
-   ```bash
-   flutter run -d <sender-device-id>
-   ```
-4. On the receiving phone, tap `开始接收`.
-5. The receiving phone will show one or more local IPv4 chips, such as `192.168.1.23`.
-6. On the sending phone, tap `自动发现设备`.
-7. If a device chip appears, tap it to fill the IP. If discovery fails, manually enter the receiver IPv4 address.
-8. Tap `选择文件并发送`.
-9. Select a file and keep both apps in the foreground until the transfer finishes.
-10. After completion, use `打开`, `导出`, or `分享` to view or move the received file.
-11. Open the history page from the top-right history icon to check completed or failed records. Each history item supports `打开`, `导出`, and `分享`.
+1. 两台手机连接同一个 Wi-Fi，或者一台开热点、另一台连接热点。
+2. 接收端打开 App，切到“接收”，点击开启接收。
+3. 发送端打开 App，切到“发送”，点击查找附近设备。
+4. 选择扫描到的设备并发送文件。
+5. 接收完成后，可直接打开文件，或导出、分享。
 
-Notes:
+### iOS
 
-- iOS will show a local network permission prompt. Allow it.
-- Android and iOS must be on the same subnet. If Wi-Fi client isolation is enabled, use a phone hotspot instead.
-- If multiple IPv4 addresses appear, prefer the Wi-Fi or hotspot address, usually starting with `192.168`, `172.20`, or `10`.
-- The default transfer port is `9527`.
+- 首次运行会弹出本地网络权限，请允许。
+- 真机调试需要在 Xcode 中配置开发签名。
 
-Current storage behavior: the receiver first saves files into the app documents directory. Use `打开` to preview with a system app, `导出` to save to a user-selected visible location, or `分享` to send the file through the system share sheet. On iOS, the app documents directory is also exposed in the Files app.
+### Android
 
-## Verify
+- 调试安装可直接使用 `flutter run` 或 Android Studio。
+- 如果需要分发安装，需要额外打包签名 APK。
+
+## 文件保存
+
+- 接收端首先把文件保存到应用可管理目录。
+- 可以通过 `打开` 直接预览。
+- 如果希望在系统文件管理器中长期可见，使用 `导出`。
+- `分享` 适合转发到其他 App。
+
+## 验证
 
 ```bash
 flutter analyze
