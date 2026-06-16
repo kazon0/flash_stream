@@ -124,6 +124,10 @@ Build the initial demo into a resume-consistent Flutter LAN P2P file transfer pr
   - transfer progress is now embedded in the relevant send/receive panel instead of a bottom status block
   - active transfers show progress, transferred size, total size, and a user-friendly low-memory note
   - history page now uses file-style record cards with direct `打开` / `导出` / `分享` actions
+- Added a custom generated app icon:
+  - source image saved at `assets/brand/app_icon.png`
+  - iOS AppIcon image set regenerated
+  - Android `mipmap-* / ic_launcher.png` images regenerated
 
 ## Verification
 
@@ -176,6 +180,11 @@ Build the initial demo into a resume-consistent Flutter LAN P2P file transfer pr
   - `flutter analyze`: passed
   - `flutter test`: passed
   - `flutter build apk --debug`: passed, output `build/app/outputs/flutter-apk/app-debug.apk`
+- After app icon replacement:
+  - `flutter analyze`: passed
+  - `flutter test`: passed
+  - `flutter build apk --debug`: passed, output `build/app/outputs/flutter-apk/app-debug.apk`
+  - `LANG=en_US.UTF-8 LC_ALL=en_US.UTF-8 flutter build ios --debug --no-codesign`: passed, output `build/ios/iphoneos/Runner.app`
 
 ## Next Steps
 
