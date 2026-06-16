@@ -14,6 +14,7 @@ class PanelShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Card(
+      margin: EdgeInsets.zero,
       color: AppColors.cardWhite,
       child: Padding(
         padding: const EdgeInsets.all(15),

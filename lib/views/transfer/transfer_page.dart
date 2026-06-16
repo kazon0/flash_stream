@@ -77,46 +77,81 @@ class _TransferPageContentState extends State<_TransferPageContent> {
       body: GestureDetector(
         behavior: HitTestBehavior.translucent,
         onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-        child: ListView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
+        child: Stack(
           children: [
-            Row(
+            const Positioned.fill(child: _BrandWatermark()),
+            ListView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.fromLTRB(20, 12, 20, 28),
               children: [
-                Expanded(
-                  child: _ModeCard(
-                    selected: _mode == _TransferMode.send,
-                    icon: Icons.send_rounded,
-                    title: '发送',
-                    subtitle: '选择设备后发送文件',
-                    badge: '查找',
-                    onTap: () => setState(() => _mode = _TransferMode.send),
-                  ),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _ModeCard(
+                        selected: _mode == _TransferMode.send,
+                        icon: Icons.send_rounded,
+                        title: '发送',
+                        subtitle: '选择设备后发送文件',
+                        badge: '查找',
+                        onTap: () => setState(() => _mode = _TransferMode.send),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: _ModeCard(
+                        selected: _mode == _TransferMode.receive,
+                        icon: Icons.inbox_rounded,
+                        title: '接收',
+                        subtitle: '让别人找到这台手机',
+                        badge: '开启',
+                        onTap: () =>
+                            setState(() => _mode = _TransferMode.receive),
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _ModeCard(
-                    selected: _mode == _TransferMode.receive,
-                    icon: Icons.inbox_rounded,
-                    title: '接收',
-                    subtitle: '让别人找到这台手机',
-                    badge: '开启',
-                    onTap: () => setState(() => _mode = _TransferMode.receive),
-                  ),
+                const SizedBox(height: 14),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 220),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  child: _mode == _TransferMode.send
+                      ? const SenderPanel(key: ValueKey('send-panel'))
+                      : const ReceiverPanel(key: ValueKey('receive-panel')),
                 ),
               ],
             ),
-            const SizedBox(height: 14),
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 220),
-              switchInCurve: Curves.easeOutCubic,
-              switchOutCurve: Curves.easeInCubic,
-              child: _mode == _TransferMode.send
-                  ? const SenderPanel(key: ValueKey('send-panel'))
-                  : const ReceiverPanel(key: ValueKey('receive-panel')),
-            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _BrandWatermark extends StatelessWidget {
+  const _BrandWatermark();
+
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: Stack(
+        children: [
+          Positioned(
+            right: -88,
+            bottom: -34,
+            child: Opacity(
+              opacity: 0.065,
+              child: Transform.rotate(
+                angle: -0.14,
+                child: Image.asset(
+                  'assets/brand/app_icon.png',
+                  width: 358,
+                  fit: BoxFit.contain,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
