@@ -31,4 +31,26 @@ void main() {
 
     expect(decoded, offset);
   });
+
+  test('generates stable task id from file identity', () {
+    final first = TransferHeader.stableTaskId(
+      fileName: 'video.mp4',
+      fileSize: 1024,
+      md5: 'abc123',
+    );
+    final second = TransferHeader.stableTaskId(
+      fileName: 'video.mp4',
+      fileSize: 1024,
+      md5: 'abc123',
+    );
+    final differentContent = TransferHeader.stableTaskId(
+      fileName: 'video.mp4',
+      fileSize: 1024,
+      md5: 'def456',
+    );
+
+    expect(second, first);
+    expect(differentContent, isNot(first));
+    expect(first, startsWith('transfer_'));
+  });
 }

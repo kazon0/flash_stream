@@ -1,12 +1,12 @@
 # FlashStream
 
-FlashStream is a Flutter LAN peer-to-peer file transfer app. It focuses on large-file transfer ergonomics: RawSocket networking, chunked file IO, progress events, resumable partial files, MD5 verification, Provider-driven UI state, and Hive-backed local transfer history.
+FlashStream is a Flutter LAN peer-to-peer file transfer app. It focuses on large-file transfer ergonomics: RawSocket networking, isolate-backed chunked file IO, progress events, resumable partial files, MD5 verification, Provider-driven UI state, and Hive-backed local transfer history.
 
 ## Features
 
 - LAN point-to-point file transfer over `RawServerSocket` / `RawSocket`.
 - Custom binary-framed JSON header with file metadata.
-- Chunked file reading and writing instead of loading the whole payload into memory.
+- Isolate-backed chunked file reading and writing instead of loading the whole payload into memory.
 - Resume support through `.part` temporary files and offset negotiation.
 - MD5 checksum calculation in a background isolate.
 - Stream-style transfer events for sending, receiving, verifying, completed, and failed states.
@@ -38,15 +38,15 @@ lib/
 3. Sender calculates the source file MD5 in an isolate.
 4. Sender writes a framed metadata header to the socket.
 5. Receiver checks whether a partial file already exists and returns the resume offset.
-6. Sender continues from that offset and streams file chunks.
-7. Receiver appends chunks to a `.part` file and reports progress.
+6. Sender continues from that offset and streams file chunks read by an IO isolate.
+7. Receiver appends chunks to a `.part` file through an IO isolate and reports progress.
 8. Receiver verifies the final MD5 and renames the `.part` file to the original file name.
 9. Receiver returns an ACK to the sender after the file is saved and verified.
 10. Completed or failed transfer records are persisted to Hive.
 
 ## Resume-Safe Project Description
 
-> Built a Flutter LAN P2P file transfer app with a layered architecture. The project uses `RawServerSocket` / `RawSocket` to implement the network channel, and supports a custom transfer header protocol, chunked file IO, resumable partial-file transfer, isolate-based MD5 verification, Provider state management, Stream-style progress events, and Hive-backed transfer history search.
+> Built a Flutter LAN P2P file transfer app with a layered architecture. The project uses `RawServerSocket` / `RawSocket` to implement the network channel, and supports a custom transfer header protocol, isolate-backed chunked file IO, resumable partial-file transfer, isolate-based MD5 verification, Provider state management, Stream-style progress events, and Hive-backed transfer history search.
 
 ## Run
 

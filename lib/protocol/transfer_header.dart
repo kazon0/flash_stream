@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
+
 import '../core/constants/transfer_constants.dart';
 
 class TransferHeader {
@@ -18,6 +22,16 @@ class TransferHeader {
   final int chunkSize;
   final int offset;
   final DateTime? createdAt;
+
+  static String stableTaskId({
+    required String fileName,
+    required int fileSize,
+    required String md5,
+  }) {
+    final source = '$fileName|$fileSize|$md5';
+    final digest = sha1.convert(utf8.encode(source)).toString();
+    return 'transfer_$digest';
+  }
 
   Map<String, Object?> toJson() {
     return {

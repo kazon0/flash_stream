@@ -69,7 +69,11 @@ class TransferSocketService {
       message: '正在准备文件',
     );
     final md5 = await _checksumService.calculateMd5(file.path);
-    final taskId = '${DateTime.now().millisecondsSinceEpoch}_$fileName';
+    final taskId = TransferHeader.stableTaskId(
+      fileName: fileName,
+      fileSize: fileSize,
+      md5: md5,
+    );
 
     final rawSocket = await RawSocket.connect(
       ip,
@@ -197,9 +201,10 @@ class TransferSocketService {
         '${saveDir.path}/${header.taskId}${TransferConstants.partialExtension}',
       );
       final finalFile = File('${saveDir.path}/${header.fileName}');
-      final resumeOffset = await partialFile.exists()
-          ? await partialFile.length()
-          : 0;
+      final resumeOffset = await _resolveResumeOffset(
+        partialFile: partialFile,
+        fileSize: header.fileSize,
+      );
       await connection.writeAll(
         BinaryProtocol.encodeResumeOffset(resumeOffset),
       );
@@ -216,7 +221,10 @@ class TransferSocketService {
       );
 
       var received = resumeOffset;
-      final raf = await partialFile.open(mode: FileMode.append);
+      final writer = await _fileChunkService.openChunkedWrite(
+        partialFile,
+        mode: FileMode.append,
+      );
       try {
         onEvent(
           TransferEvent(
@@ -237,7 +245,7 @@ class TransferSocketService {
           final bytes = chunk.length > remain
               ? chunk.sublist(0, remain)
               : chunk;
-          await raf.writeFrom(bytes);
+          await writer.write(bytes);
           received += bytes.length;
           onEvent(
             TransferEvent(
@@ -250,7 +258,7 @@ class TransferSocketService {
           );
         }
       } finally {
-        await raf.close();
+        await writer.close();
       }
 
       if (received != header.fileSize) {
@@ -277,6 +285,7 @@ class TransferSocketService {
       );
       final actualMd5 = await _checksumService.calculateMd5(partialFile.path);
       if (actualMd5 != header.md5) {
+        await partialFile.delete();
         await connection.writeAll([_ackFailure]);
         onEvent(
           TransferEvent(
@@ -314,5 +323,22 @@ class TransferSocketService {
     } finally {
       connection.destroy();
     }
+  }
+
+  Future<int> _resolveResumeOffset({
+    required File partialFile,
+    required int fileSize,
+  }) async {
+    if (!await partialFile.exists()) {
+      return 0;
+    }
+
+    final partialLength = await partialFile.length();
+    if (partialLength <= fileSize) {
+      return partialLength;
+    }
+
+    await partialFile.delete();
+    return 0;
   }
 }
