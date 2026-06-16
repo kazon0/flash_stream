@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/services.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -8,6 +9,10 @@ import '../core/constants/transfer_constants.dart';
 
 class FileActionService {
   const FileActionService();
+
+  static const MethodChannel _exportChannel = MethodChannel(
+    'flash_stream/file_export',
+  );
 
   Future<String> openFile(String? path) async {
     if (path == null || path.isEmpty) {
@@ -38,14 +43,10 @@ class FileActionService {
 
     final fileName = source.uri.pathSegments.last;
     if (Platform.isAndroid || Platform.isIOS) {
-      final result = await SharePlus.instance.share(
-        ShareParams(
-          files: [XFile(source.path)],
-          title: '导出 $fileName',
-          subject: fileName,
-        ),
-      );
-      return result.status == ShareResultStatus.dismissed ? null : source.path;
+      return _exportChannel.invokeMethod<String>('exportFile', <String, String>{
+        'path': source.path,
+        'fileName': fileName,
+      });
     }
 
     final targetPath = await FilePicker.saveFile(
