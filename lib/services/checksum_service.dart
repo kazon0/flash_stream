@@ -4,6 +4,8 @@ import 'dart:isolate';
 import 'package:convert/convert.dart';
 import 'package:crypto/crypto.dart';
 
+import '../core/constants/transfer_constants.dart';
+
 class ChecksumService {
   const ChecksumService();
 
@@ -18,7 +20,7 @@ String _calculateMd5Sync(String path) {
   final input = md5.startChunkedConversion(sink);
   final raf = file.openSync();
   try {
-    final buffer = List<int>.filled(64 * 1024, 0);
+    final buffer = List<int>.filled(TransferConstants.chunkSize, 0);
     while (true) {
       final read = raf.readIntoSync(buffer);
       if (read == 0) {

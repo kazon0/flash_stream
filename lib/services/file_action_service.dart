@@ -4,6 +4,8 @@ import 'package:file_picker/file_picker.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:share_plus/share_plus.dart';
 
+import '../core/constants/transfer_constants.dart';
+
 class FileActionService {
   const FileActionService();
 
@@ -35,10 +37,48 @@ class FileActionService {
     }
 
     final fileName = source.uri.pathSegments.last;
-    return FilePicker.saveFile(
+    if (Platform.isAndroid || Platform.isIOS) {
+      final result = await SharePlus.instance.share(
+        ShareParams(
+          files: [XFile(source.path)],
+          title: '导出 $fileName',
+          subject: fileName,
+        ),
+      );
+      return result.status == ShareResultStatus.dismissed ? null : source.path;
+    }
+
+    final targetPath = await FilePicker.saveFile(
       dialogTitle: '导出文件',
       fileName: fileName,
-      bytes: await source.readAsBytes(),
     );
+    if (targetPath == null) {
+      return null;
+    }
+
+    await _copyFileChunked(source, File(targetPath));
+    return targetPath;
+  }
+
+  Future<void> _copyFileChunked(File source, File target) async {
+    if (source.path == target.path) {
+      return;
+    }
+
+    final input = await source.open();
+    final output = await target.open(mode: FileMode.write);
+    try {
+      final buffer = List<int>.filled(TransferConstants.chunkSize, 0);
+      while (true) {
+        final read = await input.readInto(buffer);
+        if (read == 0) {
+          break;
+        }
+        await output.writeFrom(buffer, 0, read);
+      }
+    } finally {
+      await input.close();
+      await output.close();
+    }
   }
 }

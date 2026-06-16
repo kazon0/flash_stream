@@ -63,9 +63,22 @@ class TransferSocketService {
 
     final fileName = file.uri.pathSegments.last;
     final fileSize = await file.length();
-
-    yield const TransferEvent(
+    final preparingRecord = TransferRecord(
+      id: 'preparing_${DateTime.now().microsecondsSinceEpoch}',
+      fileName: fileName,
+      fileSize: fileSize,
+      md5: '',
+      direction: TransferDirection.send,
       status: TransferStatus.hashing,
+      createdAt: DateTime.now(),
+      path: file.path,
+    );
+
+    yield TransferEvent(
+      status: TransferStatus.hashing,
+      record: preparingRecord,
+      transferredBytes: 0,
+      totalBytes: fileSize,
       message: '正在准备文件',
     );
     final md5 = await _checksumService.calculateMd5(file.path);
@@ -143,7 +156,7 @@ class TransferSocketService {
       connection.shutdownSend();
       final ackBytes = await reader
           .readExactly(1)
-          .timeout(const Duration(seconds: 30));
+          .timeout(const Duration(minutes: 10));
       if (ackBytes.first != _ackSuccess) {
         yield TransferEvent(
           status: TransferStatus.failed,
@@ -174,7 +187,6 @@ class TransferSocketService {
         status: TransferStatus.failed,
         message: '发送失败: $error',
       );
-      rethrow;
     } finally {
       connection.destroy();
     }
